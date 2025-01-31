@@ -1,34 +1,66 @@
-//ALERT = NOTIFICAÇÃO OU MENSAGEM NA TELA HTML
-alert("Seja bem-vindo ao Jogo do Número Secreto");
+let listaDeNumerosSorteados = [];
+let numeroLimite = 10;
+let numeroSecreto = gerarNumeroAleatorio();
+let tentativas = 1;
 
-//LET = CRIAR VARIÁVEL (Instruções: Para números, não usar aspas. Caso contrário, o computador entenderá que é um texto.)
-let numeroSecreto = 10;
-
-//CONSOLE.LOG = MOSTRAR INFORMAÇÕES NO CONSOLE, para auxiliar nos testes da execução do código.
-//Exemplos: verificar o fluxo do programa, os valores das variáveis e outras informações relevantes
-//(Instruções: Mouse direito >> Inspecionar >> Console)
-//Após a conclusão do projeto, remover os consoles.
-//Para concatenar texto + variável dentro do console, usar vírgula
-console.log(numeroSecreto)
-
-//PROMPT = COMANDO ao usuário
-let chute = prompt("Digite um número entre 1 e 10");
-
-//IF ELSE = SE SENÃO
-if(chute == numeroSecreto){
-
-    //TEMPLANTE STRINGS = CONCATENAR Texto + Variável, usar crase no lugar da aspa + ${}
-    //CONCATENAR Texto + Variável. Outra opção é usar o sinal de +
-    //Obs.: Para concatenar texto + variável dentro do console, usar vírgula
-    alert(`Você digitou: ${numeroSecreto}. Parabéns! Você descobriu o número secreto!`)
-}
-else{
-    //CONCATENAR Texto + Variável. Outra opção é usar o sinal de +
-    //TEMPLANTE STRINGS = CONCATENAR Texto + Variável, usar crase no lugar da aspa + ${}
-    //Obs.: Para concatenar texto + variável dentro do console, usar vírgula
-    alert("Você digitou: " + chute + ". Você errou. Tente novamente.")
+function exibirTextoNaTela(tag, texto) {
+    let campo = document.querySelector(tag);
+    campo.innerHTML = texto;
+    responsiveVoice.speak(texto, 'Brazilian Portuguese Female', {rate:1.2});
 }
 
-//LIVE SERVER = EXTENSÃO DO VISUAL STUDIO CODE para atualizar, automaticamente, o HTML com as alterações feitas no código.
-//Instruções para instalar: clique no ícone das extensões no menu lateral esquerdo do Visual Studio Code >> Pesquise por Live Server >> Instale a versão criada por Ritwick Dey.
-//Instruções para executar: clique no arquivo HTML com mouse direito >> Open with Live Server
+function exibirMensagemInicial() {
+    exibirTextoNaTela('h1', 'Jogo do número secreto');
+    exibirTextoNaTela('p', 'Escolha um número entre 1 e 50');
+}
+
+exibirMensagemInicial();
+
+function verificarChute() {
+    let chute = document.querySelector('input').value;
+    
+    if (chute == numeroSecreto) {
+        exibirTextoNaTela('h1', 'Acertou!');
+        let palavraTentativa = tentativas > 1 ? 'tentativas' : 'tentativa';
+        let mensagemTentativas = `Você descobriu o número secreto com ${tentativas} ${palavraTentativa}!`;
+        exibirTextoNaTela('p', mensagemTentativas);
+        document.getElementById('reiniciar').removeAttribute('disabled');
+    } else {
+        if (chute > numeroSecreto) {
+            exibirTextoNaTela('p', `O número secreto é menor do que ${chute}`);
+        } else {
+            exibirTextoNaTela('p', `O número secreto é maior do que ${chute}`);
+        }
+        tentativas++;
+        limparCampo();
+    }
+}
+
+function gerarNumeroAleatorio() {
+    let numeroEscolhido = parseInt(Math.random() * numeroLimite + 1);
+    let quantidadeDeElementosNaLista = listaDeNumerosSorteados.length;
+
+    if (quantidadeDeElementosNaLista == numeroLimite) {
+        listaDeNumerosSorteados = [];
+    }
+    if (listaDeNumerosSorteados.includes(numeroEscolhido)) {
+        return gerarNumeroAleatorio();
+    } else {
+        listaDeNumerosSorteados.push(numeroEscolhido);
+        console.log(listaDeNumerosSorteados)
+        return numeroEscolhido;
+    }
+}
+
+function limparCampo() {
+    chute = document.querySelector('input');
+    chute.value = '';
+}
+
+function reiniciarJogo() {
+    numeroSecreto = gerarNumeroAleatorio();
+    limparCampo();
+    tentativas = 1;
+    exibirMensagemInicial();
+    document.getElementById('reiniciar').setAttribute('disabled', true)
+}
